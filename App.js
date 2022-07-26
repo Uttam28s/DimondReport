@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const env = require("dotenv").config().parsed;
 const passport = require("passport");
 const { mainRoutes } = require("./Routes/index");
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || env.PORT || 3003;
 const cors = require("cors");
 
 const dConnection =
