@@ -9,12 +9,9 @@ const MonthSalary = new mongoose.Schema({
         type: Number,
     },
     month: {
-        type: Date,
-    },
-    jama: {
         type: Number,
     },
-    month: {
+    year: {
         type: String
     }
 })

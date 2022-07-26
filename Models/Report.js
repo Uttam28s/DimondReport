@@ -27,6 +27,9 @@ const Report = new mongoose.Schema(
         },
         dailywork:{
             type:Number
+        },
+        price:{
+            type:Array
         }
     },
     {
