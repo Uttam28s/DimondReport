@@ -8,6 +8,9 @@ const MonthSalary = new mongoose.Schema({
     total: {
         type: Number,
     },
+    jama: {
+        type: Number,
+    },
     month: {
         type: Number,
     },

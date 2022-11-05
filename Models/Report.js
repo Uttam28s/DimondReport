@@ -25,11 +25,11 @@ const Report = new mongoose.Schema(
         total: {
             type: Number,
         },
-        dailywork:{
-            type:Number
+        dailywork: {
+            type: Number,
         },
-        price:{
-            type:Array
+        price: {
+            type: Array
         }
     },
     {

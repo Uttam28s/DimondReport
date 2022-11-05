@@ -8,6 +8,9 @@ const WorkerDetails = new mongoose.Schema({
     joindate: {
         type: Date,
     },
+    process: {
+        type: String
+    }
 
 });
 

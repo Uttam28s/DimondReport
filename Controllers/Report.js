@@ -5,22 +5,21 @@ const Salary = require("../Models/Salary");
 
 const addReport = async (req, res) => {
     let body = req.body;
-    console.log("🚀 ~ file: Report.js ~ line 8 ~ addReport ~ body", body);
-
     const priceDetails = await Settings.findOne();
     const processPrice = priceDetails.priceDetails[body.process];
     let dailyworksalary =
         body.jada * processPrice.jadaPrice +
         body.patla * processPrice.patlaPrice +
-        body.extrajada * processPrice.extrajadaPrice;
+        body.extraJada * processPrice.extrajadaPrice;
+    // let date1 = body.date
     let dailyReport = await new Report({
         workerid: body.workerid,
         process: body.process,
-        date: new Date(body.date * 1000),
+        date: new Date(body.date),
         jada: body.jada,
         patla: body.patla,
-        extraJada: body.extrajada,
-        total: body.jada + body.patla + body.extrajada,
+        extraJada: body.extraJada,
+        total: body.total,
         dailywork: dailyworksalary,
         price: processPrice,
     });
@@ -30,13 +29,16 @@ const addReport = async (req, res) => {
 };
 
 const addBulkReport = async (req, res) => {
-    let body = req.body;
-    let bulkArray = body.bulk;
+    let { process } = req.query;
+    let bulkArray = req.body;
     const priceDetails = await Settings.findOne();
-    const processPrice = priceDetails.priceDetails[body.process];
+    const processPrice = priceDetails.priceDetails[process];
     try {
-        for (let i = 0; i < i; i++) {
-            await addEntryInReport(body, processPrice);
+        for (let i = 0; i < bulkArray.length; i++) 
+        {   
+            if(bulkArray[i].total != ""){
+                await addEntryInReport(bulkArray[i], processPrice);
+            }
         }
         res.json({ data: "adeed bulk data" });
     } catch {
@@ -45,10 +47,11 @@ const addBulkReport = async (req, res) => {
 };
 
 const addEntryInReport = async (body, processPrice) => {
+
     let dailyworksalary =
         body.jada * processPrice.jadaPrice +
         body.patla * processPrice.patlaPrice +
-        body.extrajada * processPrice.extrajadaPrice;
+        body.extraJada * processPrice.extrajadaPrice;
 
     let dailyReport = await new Report({
         workerid: body.workerid,
@@ -56,11 +59,10 @@ const addEntryInReport = async (body, processPrice) => {
         date: body.date,
         jada: body.jada,
         patla: body.patla,
-        extraJada: body.extrajada,
-        total: body.jada + body.patla + body.extrajada,
+        extraJada: body.extraJada,
+        total: body.total,
         dailywork: dailyworksalary,
     });
-
     await dailyReport.save();
 };
 
@@ -73,16 +75,22 @@ const manageSalary = async (savedData) => {
             workersalary.push({
                 month: momentDate.month(),
                 year: momentDate.year(),
-                total: savedData.dailywork,upad:0
+                total: savedData.dailywork, 
+                upad: 0,
+                jama:0
             });
         } else {
-            if (momentDate.year() > workersalary[0].year) {
-                workersalary = [
+            if (momentDate.year() > workersalary.year) {
+               let jama = workersalary[workersalary.length - 1].total + 
+                        (workersalary[workersalary.length - 1].jama||0) - 
+                        workersalary[workersalary.length - 1].upad
+                workersalary = [    
                     {
                         month: momentDate.month(),
                         year: momentDate.year(),
                         total: savedData.dailywork,
-                        upad:0
+                        upad: (jama < 0 ) ? - jama : 0,
+                        jama: (jama > 0) ? jama : 0 ,
                     },
                 ];
             } else {
@@ -90,18 +98,24 @@ const manageSalary = async (savedData) => {
                     (d) => d.month == momentDate.month()
                 );
                 if (index < 0) {
+                    let jama = 0
+                        jama = newSalary.salary[newSalary.salary.length - 1].total + 
+                            (newSalary.salary[newSalary.salary.length - 1].jama || 0) - 
+                            newSalary.salary[newSalary.salary.length - 1].upad
                     workersalary.push({
                         month: momentDate.month(),
                         year: momentDate.year(),
                         total: savedData.dailywork,
-                        upad:0
+                        upad: (jama < 0 ) ? -jama : 0,
+                        jama: (jama > 0) ? jama : 0 ,
                     });
                 } else {
                     workersalary[index] = {
                         month: momentDate.month(),
                         year: momentDate.year(),
                         total: workersalary[index].total + savedData.dailywork,
-                        upad:workersalary[index].upad
+                        upad: workersalary[index].upad,
+                        jama:workersalary[index].jama,
                     };
                 }
             }
@@ -129,22 +143,32 @@ const manageSalary = async (savedData) => {
 };
 
 
-const getReport = async(req,res) =>{
-const body = req.body;
-let start = new Date(body.to * 1000);
-let end = new Date(body.from * 1000);
-console.log("🚀 ~ file: Report.js ~ line 135 ~ getReport ~ end", start, end);
+const getReport = async (req, res) => {
+    let { process } = req.query;
+    let { to } = req.query;
+    let { from } = req.query;
+    let start = ""
+    let end = ""
+    if(from != "" && to != ""){
+        start = new Date(from);
+        end = new Date(to);
+    }
 
-let report = await Report.find({
-    date: {
-        $gte: start,
-        $lt: end,
-    },
-});
-console.log("🚀 ~ file: Report.js ~ line 143 ~ getReport ~ report", report)
-
-
-res.json()
+    let report = []
+    if(end != ""){
+        report = await Report.find({
+            date: {
+                $gte: start,
+                $lt: end,
+            },
+            process : process
+        });
+    }else{
+        report = await Report.find({
+            process : process
+        })
+    }
+    res.json({ data: report });
 }
 
 module.exports = {
