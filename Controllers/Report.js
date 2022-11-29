@@ -142,6 +142,33 @@ const manageSalary = async (savedData) => {
     }
 };
 
+const getEmployeeReport = async (req, res) => {
+    console.log("🚀 ~ file: Report.js ~ line 148 ~ getEmployeeReport ~ to",req.query)
+    let { to } = req.query;
+    let { from } = req.query;
+    let { emp_id } = req.query;
+    if(from != "" && to != ""){
+        start = new Date(from);
+        end = new Date(to); 
+    }
+
+    let report = []
+    if(end != ""){
+        report = await Report.find({
+            date: {
+                $gte: start,
+                $lt: end,
+            },
+            workerid : emp_id
+        });
+    }else{
+        report = await Report.find({
+            workerid : emp_id
+        })
+    }
+    res.json({ data: report });
+}
+
 
 const getReport = async (req, res) => {
     let { process } = req.query;
@@ -174,5 +201,6 @@ const getReport = async (req, res) => {
 module.exports = {
     addReport,
     addBulkReport,
-    getReport
+    getReport,
+    getEmployeeReport
 };

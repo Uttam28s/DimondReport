@@ -18,5 +18,6 @@ router.post("/report/addbulkreport", controller.report.addBulkReport);
 
 router.get("/report/get", controller.report.getReport);
 
+router.get("/employee/report", controller.report.getEmployeeReport);
 
 module.exports = router;
