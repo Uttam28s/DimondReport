@@ -14,11 +14,11 @@ const getWorkerListBulk = async (req, res) => {
   let worker = SettingsObj.worker;
   let a = []
   let ne = []
-  worker.map((ele)=>{
-    if(ele.process){
+  worker.map((ele) => {
+    if (ele.process) {
       // console.log("--20---",ele.process)
-      if(ele.process == process){
-        ne.push(ele) 
+      if (ele.process == process) {
+        ne.push(ele)
       }
     }
   })
@@ -47,11 +47,11 @@ const addWorker = async (req, res) => {
     let SettingsObj = await Settings.findOne();
     let worker = SettingsObj.worker;
     let checkName = worker.findIndex((d) => d.name == name);
-    console.log("check name is ",checkName)
+    console.log("check name is ", checkName)
     if (checkName >= 0) {
-      res.json({ error: "name already in use " });
+      res.status(400).json({ message: "Name Already In Use" });
     } else {
-      worker.push({ name: name , process: process});
+      worker.push({ name: name, process: process });
       // console.log("🚀 ~ file: Settings.js ~ line 72 ~ addWorker ~ process", process,name,worker)
       let updated = await Settings.findOneAndUpdate(
         { _id: SettingsObj._id },
@@ -71,15 +71,15 @@ const addWorker = async (req, res) => {
         salary: []
       })
       await salary.save()
-      res.json({ data: "added" });
+      res.status(200).json({ message: "Worker Added Successfully" });
     }
   } catch { }
 };
 
 const getPriceList = async (req, res) => {
   let SettingsObj = await Settings.findOne();
-  let pricelist = SettingsObj.priceDetails;
-  res.json({ data: pricelist });
+  let pricelist = SettingsObj.priceDetails[req.query.value];
+  res.json({ pricelist: pricelist });
 
 }
 
@@ -89,14 +89,14 @@ const updatePrice = async (req, res) => {
     let SettingsObj = await Settings.findOne();
     if (process && subcategory && price) {
       let priceDetailsObj = {
-        ...SettingsObj.priceDetails,
+        ...SettingsObj?.priceDetails,
       };
       if (priceDetailsObj[process] == undefined) {
         priceDetailsObj[process] = { ...priceDetailsObj[process] };
       }
       priceDetailsObj[process][subcategory] = price;
       await Settings.updateOne(
-        { _id: SettingsObj._id },
+        { _id: SettingsObj?._id },
         {
           $set: {
             priceDetails: priceDetailsObj,

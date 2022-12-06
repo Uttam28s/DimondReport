@@ -16,6 +16,9 @@ const MonthSalary = new mongoose.Schema({
     },
     year: {
         type: String
+    },
+    status: {
+        type: String
     }
 })
 
