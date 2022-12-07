@@ -19,6 +19,7 @@
         "lodash": "^4.17.20",
         "moment": "^2.29.4",
         "mongoose": "^5.13.14",
+        "node-cron": "^3.0.2",
         "passport": "^0.6.0"
     },
     "devDependencies": {
