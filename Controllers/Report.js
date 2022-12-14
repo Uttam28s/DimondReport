@@ -19,6 +19,9 @@ const addReport = async (req, res) => {
         patla: body?.patla || 0,
         extraJada: body?.extraJada || 0,
         total: body.total,
+        jadaPrice : processPrice?.jadaPrice,
+        patlaPrice : processPrice?.patlaPrice,
+        extraJadaPrice : processPrice?.extrajadaPrice,
         dailywork: dailyworksalary,
         price: processPrice,
     });
@@ -59,6 +62,9 @@ const addEntryInReport = async (body, processPrice) => {
         patla: body?.patla,
         extraJada: body?.extraJada,
         total: body?.total,
+        jadaPrice : processPrice?.jadaPrice,
+        patlaPrice : processPrice?.patlaPrice,
+        extraJadaPrice : processPrice?.extrajadaPrice,
         dailywork: dailyworksalary,
     });
     await dailyReport.save();

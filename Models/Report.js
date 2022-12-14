@@ -20,6 +20,15 @@ const Report = new mongoose.Schema(
             type: Number,
         },
         extraJada: {
+            type : Number,
+        },
+        patlaPrice: {
+            type : Number,
+        },
+        jadaPrice: {
+            type : Number,
+        },
+        extraJadaPrice: {
             type: Number,
         },
         total: {
