@@ -82,7 +82,8 @@ const manageSalary = async (savedData) => {
                 year: momentDate.year(),
                 total: savedData.dailywork,
                 upad: 0,
-                jama: 0
+                jama: 0,
+                status : 'pending'
             });
         } else {
             if (momentDate.year() > workersalary[0].year) {
@@ -97,6 +98,7 @@ const manageSalary = async (savedData) => {
                         total: savedData.dailywork,
                         upad: (jama < 0) ? - jama : 0,
                         jama: (jama > 0) ? jama : 0,
+                        status : 'pending'
                     },
                 ];
             } else {
@@ -118,6 +120,7 @@ const manageSalary = async (savedData) => {
                         total: savedData?.dailywork,
                         upad: (jama < 0) ? -jama : 0,
                         jama: (jama > 0) ? jama : 0,
+                        status : 'pending'
                     });
                 } else {
                     console.log("🚀 ~ file: Report.js:115 ~ manageSalary ~ else")
@@ -127,6 +130,7 @@ const manageSalary = async (savedData) => {
                         total: workersalary[index]?.total + savedData?.dailywork,
                         upad: workersalary[index]?.upad,
                         jama: workersalary[index]?.jama,
+                        status : 'pending'
                     };
                 }
             }
@@ -148,7 +152,8 @@ const manageSalary = async (savedData) => {
                     year: momentDate.year(),
                     total: savedData.dailywork,
                     upad: 0,
-                    jama: 0
+                    jama: 0,
+                    status : 'pending'
                 },
             ],
         });

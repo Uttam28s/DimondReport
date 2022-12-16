@@ -37,6 +37,11 @@ const Prices = new mongoose.Schema({
 
 const Settings = new mongoose.Schema(
     {
+        adminId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "User._id",
+        },
         priceDetails: {
             taliya: {
                 type: Prices,

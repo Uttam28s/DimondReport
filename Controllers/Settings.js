@@ -2,7 +2,8 @@ const Settings = require("../Models/Settings");
 const Salary = require("../Models/Salary");
 
 const getWorkerList = async (req, res) => {
-  let SettingsObj = await Settings.findOne();
+  let SettingsObj = await Settings.findOne({adminId : req.query.adminId });
+  console.log("🚀 ~ file: Settings.js:6 ~ getWorkerList ~ SettingsObj", SettingsObj.worker)
   let worker = SettingsObj.worker;
   res.json({ data: worker });
 }
@@ -42,9 +43,9 @@ const getWorkerListBulk = async (req, res) => {
 }
 
 const addWorker = async (req, res) => {
-  let { name, process } = req.query;
+  let { name, process, adminId} = req.query;
   try {
-    let SettingsObj = await Settings.findOne();
+    let SettingsObj = await Settings.findOne({ adminId : adminId});
     let worker = SettingsObj.worker;
     let checkName = worker.findIndex((d) => d.name == name);
     console.log("check name is ", checkName)
@@ -52,9 +53,8 @@ const addWorker = async (req, res) => {
       res.status(400).json({ message: "Name Already In Use" });
     } else {
       worker.push({ name: name, process: process });
-      // console.log("🚀 ~ file: Settings.js ~ line 72 ~ addWorker ~ process", process,name,worker)
       let updated = await Settings.findOneAndUpdate(
-        { _id: SettingsObj._id },
+        { adminId: SettingsObj.adminId },
         {
           $set: {
             priceDetails: SettingsObj.priceDetails,
