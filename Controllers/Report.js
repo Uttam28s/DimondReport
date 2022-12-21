@@ -2,25 +2,30 @@ let Settings = require("../Models/Settings");
 const Report = require("../Models/Report");
 const moment = require("moment");
 const Salary = require("../Models/Salary");
+const User = require("../Models/User");
 
 const addReport = async (req, res) => {
     let body = req.body;
-    const priceDetails = await Settings.findOne();
+    const priceDetails = await Settings.findOne({ adminId : body?.adminId});
     const processPrice = priceDetails?.priceDetails[body.process];
     let dailyworksalary =
-        body.jada * processPrice?.jadaPrice +
-        body.patla * processPrice?.patlaPrice +
-        body.extraJada * processPrice?.extrajadaPrice;
+    body.jada * processPrice?.jadaPrice +
+    body.patla * processPrice?.patlaPrice +
+    body.extraJada * processPrice?.extrajadaPrice + 
+    body.extraPatla * processPrice?.extraPatlaPrice;
     let dailyReport = await new Report({
         workerid: body.workerid,
+        adminId : body.adminId,
         process: body.process,
         date: new Date(body.date),
         jada: body?.jada || 0,
         patla: body?.patla || 0,
+        extraPatla: body?.extraPatla || 0,
         extraJada: body?.extraJada || 0,
         total: body.total,
         jadaPrice : processPrice?.jadaPrice,
         patlaPrice : processPrice?.patlaPrice,
+        extraPatlaPrice : processPrice?.extraPatlaPrice,    
         extraJadaPrice : processPrice?.extrajadaPrice,
         dailywork: dailyworksalary,
         price: processPrice,
@@ -31,14 +36,14 @@ const addReport = async (req, res) => {
 };
 
 const addBulkReport = async (req, res) => {
-    let { process } = req.query;
+    let { process,adminId } = req.query;
     let bulkArray = req.body;
-    const priceDetails = await Settings.findOne();
+    const priceDetails = await Settings.findOne({adminId : adminId});
     const processPrice = priceDetails?.priceDetails[process];
     try {
         for (let i = 0; i < bulkArray.length; i++) {
             if (bulkArray[i].total != "") {
-                await addEntryInReport(bulkArray[i], processPrice);
+                await addEntryInReport(bulkArray[i], processPrice, adminId);
             }
         }
         res.json({ message: "Bulk Data Added" });
@@ -47,23 +52,27 @@ const addBulkReport = async (req, res) => {
     }
 };
 
-const addEntryInReport = async (body, processPrice) => {
+const addEntryInReport = async (body, processPrice, adminId) => {
 
     let dailyworksalary =
         body.jada * processPrice?.jadaPrice +
         body.patla * processPrice?.patlaPrice +
-        body.extraJada * processPrice?.extrajadaPrice;
+        body.extraJada * processPrice?.extrajadaPrice + 
+        body.extraPatla * processPrice?.extraPatlaPrice;
 
     let dailyReport = await new Report({
         workerid: body?.workerid,
+        adminId: adminId,
         process: body?.process,
         date: body?.date,
         jada: body?.jada,
         patla: body?.patla,
+        extraPatla : body?.extraPatla,
         extraJada: body?.extraJada,
         total: body?.total,
         jadaPrice : processPrice?.jadaPrice,
         patlaPrice : processPrice?.patlaPrice,
+        extraPatlaPrice : processPrice?.extraPatlaPrice,
         extraJadaPrice : processPrice?.extrajadaPrice,
         dailywork: dailyworksalary,
     });
@@ -76,7 +85,6 @@ const manageSalary = async (savedData) => {
     if (newSalary) {
         let workersalary = newSalary.salary || [];
         if (!newSalary.salary.length) {
-            console.log("🚀 ~ file: Report.js:74 ~ manageSalary ~ if")
             workersalary.push({
                 month: momentDate.month(),
                 year: momentDate.year(),
@@ -87,7 +95,6 @@ const manageSalary = async (savedData) => {
             });
         } else {
             if (momentDate.year() > workersalary[0].year) {
-                console.log("🚀 ~ file: Report.js:83 ~ manageSalary ~ if")
                 let jama = workersalary[workersalary.length - 1].total +
                     (workersalary[workersalary.length - 1].jama || 0) -
                     workersalary[workersalary.length - 1].upad
@@ -102,13 +109,11 @@ const manageSalary = async (savedData) => {
                     },
                 ];
             } else {
-                console.log("🚀 ~ file: Report.js:97 ~ manageSalary ~ else")
                 let index = workersalary.findIndex(
                     (d) => d.month == momentDate.month()
                 );
                 let jama = 0
                 if (index < 0) {
-                    console.log("🚀 ~ file: Report.js:101 ~ manageSalary ~ if")
                     if (workersalary[workersalary.length - 1]?.status !== 'paid' || workersalary[workersalary.length - 1]?.total < workersalary[workersalary.length - 1]?.upad) {
                         jama = newSalary?.salary[newSalary?.salary.length - 1].total +
                             (newSalary?.salary[newSalary?.salary.length - 1].jama || 0) -
@@ -123,7 +128,6 @@ const manageSalary = async (savedData) => {
                         status : 'pending'
                     });
                 } else {
-                    console.log("🚀 ~ file: Report.js:115 ~ manageSalary ~ else")
                     workersalary[index] = {
                         month: momentDate.month(),
                         year: momentDate.year(),
@@ -187,10 +191,12 @@ const getEmployeeReport = async (req, res) => {
 }
 
 
-const getReport = async (req, res) => {
-    let { process } = req.query;
-    let { to } = req.query;
-    let { from } = req.query;
+const   getReport = async (req, res) => {
+    let { process, to, from, adminId } = req.query;
+    let isAdmin = false
+    if(adminId === "639c4be0dd41dfe8ad122b5d"){
+        isAdmin = true
+    }
     let start = ""
     let end = ""
     if (from !== "" && to !== "") {
@@ -199,25 +205,63 @@ const getReport = async (req, res) => {
     }
 
     let report = []
-    if (end != "") {
-        report = await Report.find({
-            date: {
-                $gte: start,
-                $lt: end,
-            },
-            process: process
-        });
-    } else {
-        report = await Report.find({
-            process: process
-        })
+    if(!isAdmin){
+        if (end != "") {
+            report = await Report.find({
+                date: {
+                    $gte: start,
+                    $lt: end,
+                },
+                process: process,
+                adminId : adminId
+            });
+        } else {
+            report = await Report.find({
+                process: process,
+                adminId : adminId
+            })
+        }
+    }else{
+        if (end != "") {
+            report = await Report.find({
+                date: {
+                    $gte: start,
+                    $lt: end,
+                },
+                process: process,
+            });
+        } else {
+            report = await Report.find({
+                process: process,
+            })
+        }
     }
     res.json({ data: report });
+}
+
+
+const ReportforSuperAdmin = async (req,res) => {
+    const salary = await Salary.find()
+    const user = await User.find()
+    let data = []
+    user.map((ele,index) => {
+        if(!(index === 0)){
+            data.push({
+                id : index,
+                Name : ele.name,
+                AdminId : ele._id
+            })
+        }
+    })
+
+    res.json({ data: data });
+
 }
 
 module.exports = {
     addReport,
     addBulkReport,
     getReport,
-    getEmployeeReport
+    getEmployeeReport,
+    ReportforSuperAdmin
 };

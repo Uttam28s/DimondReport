@@ -5,11 +5,11 @@ const moment = require('moment');
 
 const getMonthWise = async (req, res) => {
 
-    const { month } = req.query;    
-    const salary = await Salary.find();
-    const workerDetails = await Settings.find()
-    const workers = workerDetails[0].worker
-    const report = await Report.find()
+    const { month, adminId } = req.query;    
+    const salary = await Salary.find( {adminId : adminId} );
+    const workerDetails = await Settings.find({adminId : adminId})
+    const workers = workerDetails[0]?.worker
+    const report = await Report.find({ adminId : adminId })
     data = []
     salary.map((ele,index) => {
         let data1 = ele.salary.findIndex((ele) => {
@@ -20,7 +20,7 @@ const getMonthWise = async (req, res) => {
                 return String(ele1._id) === String(ele.workerid)
             })
             const reportData = report.filter((eleReport) => {
-                return eleReport.date.getMonth() === moment().month() - 1 && String(eleReport.workerid) === String(ele?.workerid) 
+                return eleReport.date.getMonth() === moment().month() && String(eleReport.workerid) === String(ele?.workerid) 
             })
             let jadapcs = 0
             let patlapcs = 0
@@ -81,7 +81,6 @@ const getMonthWise = async (req, res) => {
             RussianData.push(ele)
         }
     })
-    console.log("🚀 ~ file: Salary.js:99 ~ getMonthWise ~ totaljadapcs", totaljadapcs)
     finalData = {
         MathalaData : MathalaData,
         TaliyaData : TaliyaData,
@@ -152,7 +151,6 @@ const getSalary = async (req, res) => {
 const upad = async (req, res) => {
     const { workerid, upad, month } = req.query;
     const salary = await Salary.findOne({ workerid: workerid });
-    console.log("🚀 ~ file: Salary.js:54 ~ upad ~ salary", salary)
     let SalaryArray = [...salary.salary]
     let index = SalaryArray.findIndex((d) => {
         return d.month === month - 1

@@ -30,6 +30,10 @@ const Prices = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    extraPatlaPrice : {
+        type: Number,
+        default: 0,
+    }
 });
 
 

@@ -20,6 +20,9 @@ router.post("/report/addbulkreport", controller.report.addBulkReport);
 
 router.get("/report/get", controller.report.getReport);
 
+router.get("/report/mainReport", controller.report.ReportforSuperAdmin);
+
+
 router.get("/employee/report", controller.report.getEmployeeReport);
 
 

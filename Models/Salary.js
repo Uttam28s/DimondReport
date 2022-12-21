@@ -30,6 +30,11 @@ const Salary = new mongoose.Schema(
             required: true,
             ref: "Settings.worker",
         },
+        adminId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "Settings._id",
+        },
         salary: {
             type: [MonthSalary],
         },

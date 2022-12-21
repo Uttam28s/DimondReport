@@ -7,6 +7,11 @@ const Report = new mongoose.Schema(
             required: true,
             ref: "Settings.worker",
         },
+        adminId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "Settings.adminId",
+        },
         process: {
             type: String,
         },
@@ -22,6 +27,9 @@ const Report = new mongoose.Schema(
         extraJada: {
             type : Number,
         },
+        extraPatla : {
+            type : Number,
+        },
         patlaPrice: {
             type : Number,
         },
@@ -30,6 +38,9 @@ const Report = new mongoose.Schema(
         },
         extraJadaPrice: {
             type: Number,
+        },
+        extraPatlaPrice: {
+            type: Number
         },
         total: {
             type: Number,
