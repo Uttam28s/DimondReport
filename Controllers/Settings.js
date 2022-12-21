@@ -27,7 +27,7 @@ const getWorkerListBulk = async (req, res) => {
   let { process, adminId } = req.query;
   let SettingsObj = await Settings.findOne({ adminId : adminId });
 
-  let worker = SettingsObj.worker;
+  let worker = SettingsObj?.worker;
   let data = []
   let workerList = []
   worker.map((ele) => {
