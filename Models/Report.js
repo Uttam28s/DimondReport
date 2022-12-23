@@ -18,29 +18,8 @@ const Report = new mongoose.Schema(
         date: {
             type: Date,
         },
-        jada: {
-            type: Number,
-        },
-        patla: {
-            type: Number,
-        },
-        extraJada: {
-            type : Number,
-        },
-        extraPatla : {
-            type : Number,
-        },
-        patlaPrice: {
-            type : Number,
-        },
-        jadaPrice: {
-            type : Number,
-        },
-        extraJadaPrice: {
-            type: Number,
-        },
-        extraPatlaPrice: {
-            type: Number
+        pcs : {
+            type: Object,
         },
         total: {
             type: Number,
@@ -49,7 +28,7 @@ const Report = new mongoose.Schema(
             type: Number,
         },
         price: {
-            type: Array
+            type: Object
         }
     },
     {

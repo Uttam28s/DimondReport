@@ -13,6 +13,9 @@ const User = new mongoose.Schema(
     },
     flag: {
       type: Boolean,
+    },
+    diamondType : {
+      type: Array
     }
   },
   {

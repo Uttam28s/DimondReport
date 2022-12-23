@@ -12,7 +12,7 @@ router.get("/settings/addworker", controller.settings.addWorker);
 router.get("/settings/getworker", controller.settings.getWorkerList);
 router.get("/settings/getworkerbulk", controller.settings.getWorkerListBulk);
 
-router.get("/settings/addprice", controller.settings.updatePrice);
+router.put("/settings/addprice", controller.settings.updatePrice);
 router.get("/settings/getprice", controller.settings.getPriceList);
 router.post("/report/add", controller.report.addReport);
 
@@ -33,5 +33,8 @@ router.delete("/user/deleteuser",controller.user.deleteUser);
 router.post("/user/checkLogin",controller.user.checkLogin);
 router.put("/user/updateFlag",controller.user.updateUserStatus);
 
+router.post("/user/addType",controller.user.addType)
+
+router.get("/user/diamondTypeList",controller.user.getdiamondTypeList)
 
 module.exports = router;

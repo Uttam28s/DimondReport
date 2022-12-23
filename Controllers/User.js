@@ -74,10 +74,45 @@ const checkLogin = async (req,res) => {
 
 }
 
+
+const addType = async (req,res) => {
+    try{
+        const { adminId, type } = req.body
+        if(type){
+            const data = await User.findOne({ _id : adminId })
+            data.diamondType.push(type)
+            data.save()
+        }
+        const setting = await Settings.findOne({adminId : adminId})
+        let typePrice = type +"Price" 
+        const method = ['taliya','mathala','russian','pel','table']
+        method.map((ele) => {
+            setting.priceDetails[ele].push({ [typePrice] : 0})
+        })  
+        setting.save()
+        res.json({ success: "Successfully"});
+    }catch(e){
+        res.json({ error: e });
+    }
+}
+
+
+const getdiamondTypeList = async (req,res) => {
+    try{
+        const { adminId } = req.query
+        const user = await User.findOne({ _id : adminId })
+        res.json({ data: user?.diamondType});
+
+    }catch(e){
+        res.json({ error: e });
+    }
+}
 module.exports = {
   addUser,
   getUsers,
   deleteUser,
   checkLogin,
-  updateUserStatus
+  updateUserStatus,
+  addType,
+  getdiamondTypeList
 };

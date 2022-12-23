@@ -48,19 +48,19 @@ const Settings = new mongoose.Schema(
         },
         priceDetails: {
             taliya: {
-                type: Prices,
+                type: Array,
             },
             table: {
-                type: Prices,
+                type: Array,
             },
             pel: {
-                type: Prices,
+                type: Array,
             },
             mathala: {
-                type: Prices,
+                type: Array,
             },
             russian: {
-                type: Prices,
+                type: Array,
             },
         },
         worker: {

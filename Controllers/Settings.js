@@ -1,5 +1,6 @@
 const Settings = require("../Models/Settings");
 const Salary = require("../Models/Salary");
+const User = require("../Models/User");
 
 const getWorkerList = async (req, res) => {
   const { adminId } = req.query
@@ -37,21 +38,23 @@ const getWorkerListBulk = async (req, res) => {
       }
     }
   })
+  const user = await User.findOne({ _id : adminId })
   workerList.map((ele, index) => {
     let b = {
       'index': index,
       'name': ele.name,
       '_id': ele._id,
-      'jada': "",
-      'patla': "",
-      'extraJada': "",
       'total': "",
       'dailywork': "",
       'price': ""
     }
-    data.push(b)
-
+    let temp = {}
+    user.diamondType.map((i) => {
+      temp[i] = ""
+    })
+    data.push({...b,...temp})
   })
+  console.log("🚀 ~ file: Settings.js:56 ~ workerList.map ~ data", data)
   res.json({ data: data });
 }
 
@@ -95,35 +98,31 @@ const getPriceList = async (req, res) => {
   let { value, adminId } = req.query
   let SettingsObj = await Settings.findOne({adminId:adminId});
   let pricelist = SettingsObj?.priceDetails[value];
-  res.json({ pricelist: pricelist });
+  res.json({ pricelist });
 
 }
 
 const updatePrice = async (req, res) => {
-  let { process, subcategory, price,adminId } = req.query;
   try {
+    let { process,adminId } = req.query;
+    let data = req.body 
+    const diamondType = Object.keys(data)
     let SettingsObj = await Settings.findOne({adminId});
-    if (process && subcategory && price) {
-      let priceDetailsObj = {
-        ...SettingsObj?.priceDetails,
-      };
-      if (priceDetailsObj[process] == undefined) {
-        priceDetailsObj[process] = { ...priceDetailsObj[process] };
+    SettingsObj?.priceDetails[process].map((ele,index) => {
+      ele[diamondType[index]]  = data[diamondType[index]]
+    })
+    await Settings.updateOne(
+      { _id: SettingsObj?._id },
+      {
+        $set: {
+          priceDetails: SettingsObj?.priceDetails,
+        },
       }
-      priceDetailsObj[process][subcategory] = price;
-      await Settings.updateOne(
-        { _id: SettingsObj?._id },
-        {
-          $set: {
-            priceDetails: priceDetailsObj,
-          },
-        }
-      );
-      res.json({ error: "Saved" });
-    } else {
-      res.json({ error: "please provide name and value" });
-    }
-  } catch { }
+    );
+    res.json({ error: "Saved" });
+  } catch(e) {
+    res.json({ error: e });
+  }
 };
 
 module.exports = {

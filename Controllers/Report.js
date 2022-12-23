@@ -3,32 +3,41 @@ const Report = require("../Models/Report");
 const moment = require("moment");
 const Salary = require("../Models/Salary");
 const User = require("../Models/User");
+const { lte } = require("lodash");
 
 const addReport = async (req, res) => {
-    let body = req.body;
-    const priceDetails = await Settings.findOne({ adminId : body?.adminId});
-    const processPrice = priceDetails?.priceDetails[body.process];
-    let dailyworksalary =
-    body.jada * processPrice?.jadaPrice +
-    body.patla * processPrice?.patlaPrice +
-    body.extraJada * processPrice?.extrajadaPrice + 
-    body.extraPatla * processPrice?.extraPatlaPrice;
+    let {params , data} = req.body;
+    const priceDetails = await Settings.findOne({ adminId : params?.adminId});
+    const processPrice = priceDetails?.priceDetails[params?.process];
+    
+    let obj = processPrice.reduce(function(result, item) {
+        let key = Object.keys(item)[0]; 
+        result[key] = item[key];
+        return result;
+    }, {});
+    let dailyworksalary = 0 
+    let pcsObj = {}
+    let priceObj = {}
+    Object.keys(obj).map((ele,index) => {
+        priceObj[ele] = obj[ele]
+        Object.keys(data).map((i,j) => {
+            if(index === 0){
+                pcsObj[i] = data[i]
+            }
+            if(ele.slice(0,-5) === i){
+                dailyworksalary = dailyworksalary + data[i] * obj[ele]
+            }
+        })
+    })
     let dailyReport = await new Report({
-        workerid: body.workerid,
-        adminId : body.adminId,
-        process: body.process,
-        date: new Date(body.date),
-        jada: body?.jada || 0,
-        patla: body?.patla || 0,
-        extraPatla: body?.extraPatla || 0,
-        extraJada: body?.extraJada || 0,
-        total: body.total,
-        jadaPrice : processPrice?.jadaPrice,
-        patlaPrice : processPrice?.patlaPrice,
-        extraPatlaPrice : processPrice?.extraPatlaPrice,    
-        extraJadaPrice : processPrice?.extrajadaPrice,
+        workerid: params?.workerid,
+        adminId : params?.adminId,
+        process: params?.process,
+        date: new Date(params?.date),
+        total:params?.total,
         dailywork: dailyworksalary,
-        price: processPrice,
+        price: priceObj,
+        pcs: pcsObj,
     });
     dailyReport.save();
     manageSalary(dailyReport);
@@ -53,27 +62,34 @@ const addBulkReport = async (req, res) => {
 };
 
 const addEntryInReport = async (body, processPrice, adminId) => {
-
-    let dailyworksalary =
-        body.jada * processPrice?.jadaPrice +
-        body.patla * processPrice?.patlaPrice +
-        body.extraJada * processPrice?.extrajadaPrice + 
-        body.extraPatla * processPrice?.extraPatlaPrice;
+    let obj = processPrice.reduce(function(result, item) {
+        let key = Object.keys(item)[0]; 
+        result[key] = item[key];
+        return result;
+    }, {});
+    let dailyworksalary = 0 
+    let pcsObj = {}
+    let priceObj = {}
+    Object.keys(obj).map((ele,index) => {
+        priceObj[ele] = obj[ele]
+        Object.keys(body).map((i,j) => {
+            if(index === 0){
+                pcsObj[ele.slice(0,-5)] = body[ele.slice(0,-5)]
+            }
+            if(ele.slice(0,-5) === i){
+                dailyworksalary = dailyworksalary + body[i] * obj[ele]
+            }
+        })
+    })
 
     let dailyReport = await new Report({
         workerid: body?.workerid,
         adminId: adminId,
         process: body?.process,
         date: body?.date,
-        jada: body?.jada,
-        patla: body?.patla,
-        extraPatla : body?.extraPatla,
-        extraJada: body?.extraJada,
         total: body?.total,
-        jadaPrice : processPrice?.jadaPrice,
-        patlaPrice : processPrice?.patlaPrice,
-        extraPatlaPrice : processPrice?.extraPatlaPrice,
-        extraJadaPrice : processPrice?.extrajadaPrice,
+        pcs :pcsObj,
+        price :priceObj, 
         dailywork: dailyworksalary,
     });
     await dailyReport.save();
@@ -192,51 +208,74 @@ const getEmployeeReport = async (req, res) => {
 
 
 const   getReport = async (req, res) => {
-    let { process, to, from, adminId } = req.query;
-    let isAdmin = false
-    if(adminId === "639c4be0dd41dfe8ad122b5d"){
-        isAdmin = true
-    }
-    let start = ""
-    let end = ""
-    if (from !== "" && to !== "") {
-        start = new Date(from);
-        end = new Date(to);
-    }
+    try{
+        let { process, to, from, adminId } = req.query;
+        let isAdmin = false
+        if(adminId === "639c4be0dd41dfe8ad122b5d"){
+            isAdmin = true
+        }
+        let start = ""
+        let end = ""
+        if (from !== "" && to !== "") {
+            start = new Date(from);
+            end = new Date(to);
+        }
+    
+        let report = []
+        if(!isAdmin){
+            if (end != "") {
+                report = await Report.find({
+                    date: {
+                        $gte: start,
+                        $lt: end,
+                    },
+                    process: process,
+                    adminId : adminId
+                });
+            } else {
+                report = await Report.find({
+                    process: process,
+                    adminId : adminId
+                })
+            }
+        }else{
+            if (end != "") {
+                report = await Report.find({
+                    date: {
+                        $gte: start,
+                        $lt: end,
+                    },
+                    process: process,
+                });
+            } else {
+                report = await Report.find({
+                    process: process,
+                })
+            }
+        }
+        let pcs = {}
+        let price= {}
+        let data =[]
+        report.map((ele) => {
+            Object.keys(ele?.pcs).map((i) => {
+                pcs[i] = ele.pcs[i]
+                ele[i] = ele.pcs[i]
+            })
+            Object.keys(ele?.price).map((i) => {
+                price[i] = ele.price[i]
+            })
+            ele = {
+                ...ele,
+                ...pcs,
+                ...price
+            }
+        })
+    
+        res.json({ data: report });
 
-    let report = []
-    if(!isAdmin){
-        if (end != "") {
-            report = await Report.find({
-                date: {
-                    $gte: start,
-                    $lt: end,
-                },
-                process: process,
-                adminId : adminId
-            });
-        } else {
-            report = await Report.find({
-                process: process,
-                adminId : adminId
-            })
-        }
-    }else{
-        if (end != "") {
-            report = await Report.find({
-                date: {
-                    $gte: start,
-                    $lt: end,
-                },
-                process: process,
-            });
-        } else {
-            report = await Report.find({
-                process: process,
-            })
-        }
+    }catch(e){
+        console.log("🚀 ~ file: Report.js:284 ~ getReport ~ e", e) 
     }
-    res.json({ data: report });
 }
 
 
