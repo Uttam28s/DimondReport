@@ -50,11 +50,10 @@ const getWorkerListBulk = async (req, res) => {
     }
     let temp = {}
     user.diamondType.map((i) => {
-      temp[i] = ""
+      temp[i] = 0
     })
     data.push({...b,...temp})
   })
-  console.log("🚀 ~ file: Settings.js:56 ~ workerList.map ~ data", data)
   res.json({ data: data });
 }
 
@@ -119,9 +118,9 @@ const updatePrice = async (req, res) => {
         },
       }
     );
-    res.json({ error: "Saved" });
+    res.json({ message: "Saved" });
   } catch(e) {
-    res.json({ error: e });
+    res.status(400).json({ message: e });
   }
 };
 

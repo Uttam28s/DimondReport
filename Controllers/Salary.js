@@ -39,6 +39,7 @@ const getMonthWise = async (req, res) => {
       user.diamondType.map((ele) => {
         pcsObj[`${ele}pcs`] = obj[`${ele}pcs`];
       });
+      ele.salary[data1]?.total -ele.salary[data1]?.upad +ele.salary[data1]?.jama,
       data[index] = {
         _id: index,
         workerid: ele?.workerid,
@@ -78,6 +79,7 @@ const getMonthWise = async (req, res) => {
         ele[`${type}pcs`] + totalObj[`total${type}pcs`];
     });
   });
+
   data.map((ele) => {
     totaltotal = ele.total + totaltotal;
     totaluppad = ele.uppad + totaluppad;

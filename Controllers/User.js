@@ -1,5 +1,7 @@
 const User = require("../Models/User");
 const Settings = require("../Models/Settings");
+const Report = require("../Models/Report");
+const Salary = require("../Models/Salary");
 
 const addUser = async (req, res) => {
     try{
@@ -36,8 +38,12 @@ const deleteUser = async (req,res) => {
     try{
         const { id } = req.query
         await User.findByIdAndRemove({ _id : id })
+        await Report.deleteMany({ adminId : id})
+        await Settings.deleteOne({ adminId : id })
+        await Salary.deleteOne({ adminId : id })
+
         res.json({ data: "User Deleted Successfully" });
-    }catch{
+    }catch(e){
         res.json({ error: "error" });
     }
 }
@@ -80,7 +86,7 @@ const addType = async (req,res) => {
         const { adminId, type } = req.body
         if(type){
             const data = await User.findOne({ _id : adminId })
-            data.diamondType.push(type)
+            data.diamondType.push(type.toLowerCase())
             data.save()
         }
         const setting = await Settings.findOne({adminId : adminId})

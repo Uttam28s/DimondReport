@@ -3,7 +3,6 @@ const Report = require("../Models/Report");
 const moment = require("moment");
 const Salary = require("../Models/Salary");
 const User = require("../Models/User");
-const { lte } = require("lodash");
 
 const addReport = async (req, res) => {
     let {params , data} = req.body;
@@ -73,9 +72,7 @@ const addEntryInReport = async (body, processPrice, adminId) => {
     Object.keys(obj).map((ele,index) => {
         priceObj[ele] = obj[ele]
         Object.keys(body).map((i,j) => {
-            if(index === 0){
-                pcsObj[ele.slice(0,-5)] = body[ele.slice(0,-5)]
-            }
+            pcsObj[ele.slice(0,-5)] = body[ele.slice(0,-5)]
             if(ele.slice(0,-5) === i){
                 dailyworksalary = dailyworksalary + body[i] * obj[ele]
             }
@@ -184,9 +181,11 @@ const getEmployeeReport = async (req, res) => {
     let { to } = req.query;
     let { from } = req.query;
     let { emp_id } = req.query;
+    var tomorrow = new Date(to);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     if (from != "" && to != "") {
         start = new Date(from);
-        end = new Date(to);
+        end = new Date(tomorrow);
     }
 
     let report = []
