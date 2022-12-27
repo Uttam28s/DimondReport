@@ -70,8 +70,9 @@ const checkLogin = async (req,res) => {
     const { name,password } = req.body
     const data = await User.findOne({ name : name, password : password })
     if(data){
-        if(data.flag === false){
-            return res.json({ error: "You are Not Able to Login" });
+        console.log("🚀 ~ file: User.js:73 ~ checkLogin ~ data", data)
+        if(data?.flag === false){
+            res.status(400).json({ message: "You Are not able to login" });
         }
         res.status(200).json({ message: "Login Successfully",data : data });
     }else{
