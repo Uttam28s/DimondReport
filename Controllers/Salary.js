@@ -32,7 +32,7 @@ const getMonthWise = async (req, res) => {
       });
       user.diamondType.map((type) => {
         reportData.map((ele) => {
-          obj[`${type}pcs`] = obj[`${type}pcs`] + Number(ele.pcs[type]);
+          obj[`${type}pcs`] = obj[`${type}pcs`] + Number(ele?.pcs[type] || 0);
         });
     });
       let pcsObj = {};
@@ -73,10 +73,9 @@ const getMonthWise = async (req, res) => {
   let totaljama = 0;
   let totalsalary = 0;
 
-  user.diamondType.map((type) => {
+  user?.diamondType?.map((type) => {
     data.map((ele) => {
-      totalObj[`total${type}pcs`] =
-        ele[`${type}pcs`] + totalObj[`total${type}pcs`];
+      totalObj[`total${type}pcs`] = ele[`${type}pcs`] + totalObj[`total${type}pcs`];
     });
   });
 

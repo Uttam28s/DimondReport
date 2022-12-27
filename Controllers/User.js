@@ -40,7 +40,7 @@ const deleteUser = async (req,res) => {
         await User.findByIdAndRemove({ _id : id })
         await Report.deleteMany({ adminId : id})
         await Settings.deleteOne({ adminId : id })
-        await Salary.deleteOne({ adminId : id })
+        await Salary.deleteMany({ adminId : id })
 
         res.json({ data: "User Deleted Successfully" });
     }catch(e){
@@ -90,7 +90,7 @@ const addType = async (req,res) => {
             data.save()
         }
         const setting = await Settings.findOne({adminId : adminId})
-        let typePrice = type +"Price" 
+        let typePrice = type.toLowerCase() +"Price" 
         const method = ['taliya','mathala','russian','pel','table']
         method.map((ele) => {
             setting.priceDetails[ele].push({ [typePrice] : 0})
