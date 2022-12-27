@@ -73,9 +73,9 @@ const checkLogin = async (req,res) => {
         if(data.flag === false){
             return res.json({ error: "You are Not Able to Login" });
         }
-        res.json({ success: "Login Successfully",data : data});
+        res.status(200).json({ message: "Login Successfully",data : data });
     }else{
-        res.json({ error: "Login Failed" });
+        res.status(400).json({ message: "Login Failed" });
     }
 
 }
