@@ -16,11 +16,17 @@ router.put("/settings/addprice", controller.settings.updatePrice);
 router.get("/settings/getprice", controller.settings.getPriceList);
 router.post("/report/add", controller.report.addReport);
 
+router.put("/report/updatereport",controller.report.editReport)
+
 router.post("/report/addbulkreport", controller.report.addBulkReport);
 
 router.get("/report/get", controller.report.getReport);
 
 router.get("/report/mainReport", controller.report.ReportforSuperAdmin);
+
+router.delete("/report/delete",controller.report.DeleteReport)
+
+router.get("/report/getsinglereport",controller.report.getSingleReport)
 
 
 router.get("/employee/report", controller.report.getEmployeeReport);

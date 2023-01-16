@@ -80,7 +80,7 @@ const addWorker = async (req, res) => {
       let indexOfAddedUser = updated.worker.findIndex((d) => d.name == name);
       let id = updated.worker[indexOfAddedUser]._id;
       let salary = new Salary({
-        workerid: id,
+        workerid: id, 
         adminId : adminId,
         salary: []
       })
