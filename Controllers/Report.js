@@ -107,22 +107,22 @@ const manageSalary = async (savedData) => {
         status: "pending",
       });
     } else {
-      if (momentDate.year() > workersalary[0].year) {
-        let jama =
-          workersalary[workersalary.length - 1].total +
-          (workersalary[workersalary.length - 1].jama || 0) -
-          workersalary[workersalary.length - 1].upad;
-        workersalary = [
-          {
-            month: momentDate.month(),
-            year: momentDate.year(),
-            total: savedData.dailywork,
-            upad: jama < 0 ? -jama : 0,
-            jama: jama > 0 ? jama : 0,
-            status: "pending",
-          },
-        ];
-      } else {
+      // if (momentDate.year() > workersalary[0].year) {
+      //   let jama =
+      //     workersalary[workersalary.length - 1].total +
+      //     (workersalary[workersalary.length - 1].jama || 0) -
+      //     workersalary[workersalary.length - 1].upad;
+      //   workersalary = [
+      //     {
+      //       month: momentDate.month(),
+      //       year: momentDate.year(),
+      //       total: savedData.dailywork,
+      //       upad: jama < 0 ? -jama : 0,
+      //       jama: jama > 0 ? jama : 0,
+      //       status: "pending",
+      //     },
+      //   ];
+      // } else {
         let index = workersalary.findIndex(
           (d) => d.month == momentDate.month()
         );
@@ -156,7 +156,7 @@ const manageSalary = async (savedData) => {
             status: "pending",
           };
         }
-      }
+      // }
     }
     await Salary.updateOne(
       { workerid: savedData.workerid },
@@ -239,7 +239,7 @@ const getReport = async (req, res) => {
       } else {
         report = await Report.find({
           process: process,
-          adminId: adminId,
+          adminId: adminId
         });
       }
     } else {
@@ -257,17 +257,23 @@ const getReport = async (req, res) => {
         });
       }
     }
+
     let pcs = {};
     let price = {};
     let data = [];
+
     report.map((ele) => {
-      Object.keys(ele?.pcs).map((i) => {
-        pcs[i] = ele.pcs[i];
-        ele[i] = ele.pcs[i];
-      });
-      Object.keys(ele?.price).map((i) => {
-        price[i] = ele.price[i];
-      });
+      if(ele?.pcs){
+        Object.keys(ele?.pcs).map((i) => {
+          pcs[i] = ele?.pcs[i];
+          ele[i] = ele?.pcs[i];
+        });
+      }
+      if(ele?.price){
+        Object.keys(ele?.price).map((i) => {
+          price[i] = ele?.price[i];
+        });
+      }
       ele = {
         ...ele,
         ...pcs,
@@ -359,7 +365,8 @@ const editReport = async (req, res) => {
     let dailyworksalary = 0;
     let priceObj = report?.price;
     let pcsObj = data;
-    let olddailySalary = report?.dailyworksalary
+    let olddailySalary = report?.dailywork
+
     Object.keys(pcsObj).map((ele, index) => {
       dailyworksalary = dailyworksalary + pcsObj[ele] * priceObj[`${ele}Price`];
     });
@@ -379,21 +386,23 @@ const editReport = async (req, res) => {
     );
     let month = new Date(params?.date).getMonth();
     let year = new Date(params?.date).getFullYear();
-
     const salary = await Salary.findOne({ workerid: params?.workerid });
     let workerSalary = salary?.salary || [];
     let salaryAvailable = workerSalary?.findIndex((ele) => {
       return ele?.month === month && Number(ele?.year) === year;
     });
-
-    workerSalary[salaryAvailable] = {
+    
+    let obj  = {
       month: workerSalary[salaryAvailable]?.month,
       year: workerSalary[salaryAvailable]?.year,
-      total: workerSalary[salaryAvailable]?.total - olddailySalary + dailyworksalary,
+      total: Number(workerSalary[salaryAvailable]?.total) - Number(olddailySalary) + Number(dailyworksalary),
       upad: workerSalary[salaryAvailable]?.upad,
       jama: workerSalary[salaryAvailable]?.jama,
       status: "pending",
     };
+
+    workerSalary[salaryAvailable]  = obj
+    console.log("Point 2")
 
     await Salary.updateOne(
       { workerid: report.workerid },
@@ -403,9 +412,12 @@ const editReport = async (req, res) => {
         },
       }
     );
+    console.log("Point 3")
+
+    res.json({ message: "Updated SuccessFully" });
+  } catch(e) {
+    console.log("🚀 ~ file: Report.js:417 ~ editReport ~ e", e)
     res.json({ message: "Updated UnsuccessFully" });
-  } catch {
-    res.json({ message: "Deleted UnsuccessFully" });
   }
 };
 module.exports = {

@@ -87,6 +87,10 @@ const addType = async (req,res) => {
         const { adminId, type } = req.body
         if(type){
             const data = await User.findOne({ _id : adminId })
+            console.log("🚀 ~ file: User.js:90 ~ addType ~ data", data)
+            if((data.diamondType).includes(type)){
+                res.status(400).json({ message: "Already Exist" });
+            }
             data.diamondType.push(type.toLowerCase())
             data.save()
         }

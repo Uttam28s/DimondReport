@@ -110,6 +110,7 @@ const updatePrice = async (req, res) => {
     SettingsObj?.priceDetails[process].map((ele,index) => {
       ele[diamondType[index]]  = data[diamondType[index]]
     })
+    console.log("🚀 ~ file: Settings.js:110 ~ updatePrice ~ SettingsObj", SettingsObj?.priceDetails)
     await Settings.updateOne(
       { _id: SettingsObj?._id },
       {

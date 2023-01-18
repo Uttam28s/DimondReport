@@ -5,7 +5,7 @@ const moment = require("moment");
 const User = require("../Models/User");
 
 const getMonthWise = async (req, res) => {
-  const { month, adminId } = req.query;
+  const { month, year, adminId } = req.query;
   const salary = await Salary.find({ adminId: adminId });
   const workerDetails = await Settings.find({ adminId: adminId });
   const workers = workerDetails[0]?.worker;
@@ -14,7 +14,7 @@ const getMonthWise = async (req, res) => {
   data = [];
   salary.map((ele, index) => {
     let data1 = ele.salary.findIndex((ele) => {
-      return ele.month === Number(month);
+      return ele.month === Number(month) && ele.year === year;
     });
     if (data1 !== -1) {
       let workerName = workers.filter((ele1) => {
@@ -39,7 +39,7 @@ const getMonthWise = async (req, res) => {
       user.diamondType.map((ele) => {
         pcsObj[`${ele}pcs`] = obj[`${ele}pcs`];
       });
-      ele.salary[data1]?.total -ele.salary[data1]?.upad +ele.salary[data1]?.jama,
+      // ele.salary[data1]?.total -ele.salary[data1]?.upad +ele.salary[data1]?.jama,
       data[index] = {
         _id: index,
         workerid: ele?.workerid,
@@ -78,12 +78,14 @@ const getMonthWise = async (req, res) => {
       totalObj[`total${type}pcs`] = ele[`${type}pcs`] + totalObj[`total${type}pcs`];
     });
   });
+  // console.log("🚀 ~ file: Salary.js:105 ~ data.map ~ data", data)
 
   data.map((ele) => {
     totaltotal = ele.total + totaltotal;
     totaluppad = ele.uppad + totaluppad;
     totaljama = ele.jama + totaljama;
     totalsalary = ele.salary + totalsalary;
+    // console.log("🚀 ~ file: Salary.js:87 ~ data.map ~ ele.salary + totalsalary", ele.salary , totalsalary)
 
     if (ele.process === "mathala") {
       MathalaData.push(ele);
@@ -148,21 +150,25 @@ const changeStatus = async (req, res) => {
 };
 
 const getSalary = async (req, res) => {
-  const { workerid, month } = req.query;
+  const { workerid, month, year } = req.query;
   const salary = await Salary.findOne({ workerid: workerid });
+  console.log("🚀 ~ file: Salary.js:153 ~ getSalary ~ salary", salary)
   let resData = salary;
   if (month == 0 || (month && salary)) {
+    console.log("🚀 ~ file: Salary.js:156 ~ getSalary ~ month == 0 || (month && salary", month == 0 )
     resData.salary = salary?.salary.filter((d) => {
-      if (d.month == month) {
+      console.log("🚀 ~ file: Salary.js:159 ~ resData.salary=salary?.salary.filter ~ d.month == month && d.year == year", d.month , month , d.year ,year)
+      if (d.month == month && d.year == year) {
         return d;
       }
     });
   }
+  console.log("🚀 ~ file: Salary.js:161 ~ resData.salary=salary?.salary.filter ~ resData", resData)
 
   if (salary && salary?.salary?.length !== 0) {
     res
       .status(200)
-      .json({ data: salary, message: "Get Month Report SuccessFully" });
+      .json({ data: resData, message: "Get Month Report SuccessFully" });
   } else {
     res
       .status(400)
