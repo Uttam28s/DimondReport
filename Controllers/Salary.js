@@ -96,10 +96,10 @@ const getMonthWise = async (req, res) => {
     if (ele.process === "pel") {
       PelData.push(ele);
     }
-    if (ele.process === "russian") {
+    if (ele.process === "table") {
       TableData.push(ele);
     }
-    if (ele.process === "table") {
+    if (ele.process === "russian") {
       RussianData.push(ele);
     }
   });
