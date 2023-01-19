@@ -86,7 +86,7 @@ const checkLogin = async (req,res) => {
     if(data){
         console.log("🚀 ~ file: User.js:73 ~ checkLogin ~ data", data)
         if(data?.flag === false){
-            res.status(400).json({ message: "You Are not able to login" });
+            res.status(400).json({ message: "You Are not able to login, Please Contact Superadmin" });
         }
         res.status(200).json({ message: "Login Successfully",data : data });
     }else{
@@ -104,6 +104,7 @@ const addType = async (req,res) => {
             console.log("🚀 ~ file: User.js:90 ~ addType ~ data", data)
             if((data.diamondType).includes(type)){
                 res.status(400).json({ message: "Already Exist" });
+                return 
             }
             data.diamondType.push(type.toLowerCase())
             data.save()

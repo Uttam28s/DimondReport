@@ -152,18 +152,14 @@ const changeStatus = async (req, res) => {
 const getSalary = async (req, res) => {
   const { workerid, month, year } = req.query;
   const salary = await Salary.findOne({ workerid: workerid });
-  console.log("🚀 ~ file: Salary.js:153 ~ getSalary ~ salary", salary)
   let resData = salary;
   if (month == 0 || (month && salary)) {
-    console.log("🚀 ~ file: Salary.js:156 ~ getSalary ~ month == 0 || (month && salary", month == 0 )
     resData.salary = salary?.salary.filter((d) => {
-      console.log("🚀 ~ file: Salary.js:159 ~ resData.salary=salary?.salary.filter ~ d.month == month && d.year == year", d.month , month , d.year ,year)
       if (d.month == month && d.year == year) {
         return d;
       }
     });
   }
-  console.log("🚀 ~ file: Salary.js:161 ~ resData.salary=salary?.salary.filter ~ resData", resData)
 
   if (salary && salary?.salary?.length !== 0) {
     res
