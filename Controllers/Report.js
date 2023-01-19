@@ -90,6 +90,7 @@ const addEntryInReport = async (body, processPrice, adminId) => {
     dailywork: dailyworksalary,
   });
   await dailyReport.save();
+  manageSalary(dailyReport)
 };
 
 const manageSalary = async (savedData) => {
