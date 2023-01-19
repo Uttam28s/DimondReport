@@ -62,7 +62,7 @@ const addWorker = async (req, res) => {
   try {
     let SettingsObj = await Settings.findOne({ adminId : adminId});
     let worker = SettingsObj.worker || [];
-    let checkName = worker.findIndex((d) => d.name == name);
+    let checkName = worker.findIndex((d) => d?.name.toLowerCase() == name.toLowerCase());
     if (checkName >= 0) {
       res.status(400).json({ message: "Name Already In Use" });
     } else {
