@@ -7,19 +7,33 @@ const addUser = async (req, res) => {
     try{
         let { name, role, password, flag } = req.body;
         let SettingsObj = await Settings.findOne();
-        let userData = await new User({
-          name: name,
-          role: "Admin",
-          password: String(password),
-          flag: true,
-        });
-        let SettingData = await new Settings({
-            adminId : userData._id,
-            priceDetails: SettingsObj?.priceDetails,
+        let user = await User.find()
+        console.log("🚀 ~ file: User.js:11 ~ addUser ~ user", user)
+        let isExist = false
+        user.map((ele) => {
+            if(ele.name === name){
+                isExist = true
+            }
         })
-        userData.save();
-        SettingData.save();
-        res.json({ data: "added" });
+        console.log("🚀 ~ file: User.js:19 ~ addUser ~ isExist", isExist)
+        if(isExist){
+            res.status(400).json({ message: "Already Exist" });
+        }else{
+
+            let userData = await new User({
+              name: name,
+              role: "Admin",
+              password: String(password),
+              flag: true,
+            });
+            let SettingData = await new Settings({
+                adminId : userData._id,
+                priceDetails: SettingsObj?.priceDetails,
+            })
+            userData.save();
+            SettingData.save();
+            res.json({ data: "added" });
+        }
     }catch(e){
         res.json({ error: "error" });
     }
