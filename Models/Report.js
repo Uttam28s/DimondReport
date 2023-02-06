@@ -19,7 +19,7 @@ const Report = new mongoose.Schema(
             type: Date,
         },
         pcs : {
-            type: Object,
+            type: Array,
         },
         total: {
             type: Number,
@@ -28,7 +28,7 @@ const Report = new mongoose.Schema(
             type: Number,
         },
         price: {
-            type: Object
+            type: Array
         }
     },
     {

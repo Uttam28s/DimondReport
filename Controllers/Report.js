@@ -5,42 +5,52 @@ const Salary = require("../Models/Salary");
 const User = require("../Models/User");
 
 const addReport = async (req, res) => {
-  let { params, data } = req.body;
-  const priceDetails = await Settings.findOne({ adminId: params?.adminId });
-  const processPrice = priceDetails?.priceDetails[params?.process];
+  try{
+      let { params, data } = req.body;
+      const priceDetails = await Settings.findOne({ adminId: params?.adminId });
+      const processPrice = priceDetails?.priceDetails[params?.process];
+      let obj = processPrice.reduce(function (result, item) {
+        let key = Object.keys(item)[0];
+        result[key] = item[key];
+        return result;
+      }, {});
+      let dailyworksalary = 0;
+      let pcsObj = {};
+      let priceObj = {};
+      let priceArr = []
+      let pcsArr = []
 
-  let obj = processPrice.reduce(function (result, item) {
-    let key = Object.keys(item)[0];
-    result[key] = item[key];
-    return result;
-  }, {});
-  let dailyworksalary = 0;
-  let pcsObj = {};
-  let priceObj = {};
-  Object.keys(obj).map((ele, index) => {
-    priceObj[ele] = obj[ele];
-    Object.keys(data).map((i, j) => {
-      if (index === 0) {
-        pcsObj[i] = data[i];
-      }
-      if (ele.slice(0, -5) === i) {
-        dailyworksalary = dailyworksalary + data[i] * obj[ele];
-      }
-    });
-  });
-  let dailyReport = await new Report({
-    workerid: params?.workerid,
-    adminId: params?.adminId,
-    process: params?.process,
-    date: new Date(params?.date),
-    total: params?.total,
-    dailywork: dailyworksalary,
-    price: priceObj,
-    pcs: pcsObj,
-  });
-  dailyReport.save();
-  manageSalary(dailyReport);
-  res.json({ data: "added" });
+      Object.keys(obj).map((ele, index) => {
+        priceObj[ele] = obj[ele];
+        priceArr.push([ele,obj[ele]])
+        Object.keys(data).map((i, j) => {
+          if (index === 0) {
+            pcsObj[i] = data[i];
+            pcsArr.push([i,data[i]])
+          }
+          if (ele.slice(0, -5) === i) {
+            dailyworksalary = dailyworksalary + data[i] * obj[ele];
+          }
+        });
+      });
+      let dailyReport = await new Report({
+        workerid: params?.workerid,
+        adminId: params?.adminId,
+        process: params?.process,
+        date: new Date(params?.date),
+        total: params?.total,
+        dailywork: dailyworksalary,
+        price: priceArr,
+        pcs: pcsArr,
+      });
+
+      dailyReport.save();
+
+      manageSalary(dailyReport);
+      res.json({ data: "added" });
+  }catch(e){
+    res.status(400).json({ message: "Report Not Added" });
+  }
 };
 
 const addBulkReport = async (req, res) => {
@@ -55,7 +65,7 @@ const addBulkReport = async (req, res) => {
       }
     }
     res.json({ message: "Bulk Data Added" });
-  } catch {
+  } catch(e) {
     res.json({ error: "error in  bulk data" });
   }
 };
@@ -69,8 +79,11 @@ const addEntryInReport = async (body, processPrice, adminId) => {
   let dailyworksalary = 0;
   let pcsObj = {};
   let priceObj = {};
+  let priceArr = [];
+  let pcsArr = []
   Object.keys(obj).map((ele, index) => {
     priceObj[ele] = obj[ele];
+    priceArr.push([ele,obj[ele]])
     Object.keys(body).map((i, j) => {
       pcsObj[ele.slice(0, -5)] = body[ele.slice(0, -5)];
       if (ele.slice(0, -5) === i) {
@@ -78,6 +91,10 @@ const addEntryInReport = async (body, processPrice, adminId) => {
       }
     });
   });
+  
+  Object.keys(pcsObj).map((ele) => {
+    pcsArr.push([ele,pcsObj[ele]])
+  })
 
   let dailyReport = await new Report({
     workerid: body?.workerid,
@@ -85,8 +102,8 @@ const addEntryInReport = async (body, processPrice, adminId) => {
     process: body?.process,
     date: body?.date,
     total: body?.total,
-    pcs: pcsObj,
-    price: priceObj,
+    pcs: pcsArr,
+    price: priceArr,
     dailywork: dailyworksalary,
   });
   await dailyReport.save();
@@ -209,7 +226,31 @@ const getEmployeeReport = async (req, res) => {
       workerid: emp_id,
     });
   }
-  res.json({ data: report });
+  let data = []
+  let pcs = {}
+  let price = {}
+
+
+  data = report.map((ele) => {
+    let objPcs = Object.fromEntries(ele.pcs)
+    Object.keys(Object.fromEntries(ele.pcs)).map((item) => {
+        pcs[item] = objPcs[item]
+        ele[item] = objPcs[item];
+    })
+
+    let objPrice = Object.fromEntries(ele.price)
+    Object.keys(Object.fromEntries(ele.price)).map((item) => {
+        price[item] = objPrice[item]
+    })
+
+    let obj = {}
+    obj['ele'] = ele
+    obj['ele']['pcs'] = { ...pcs }
+    obj['ele']['price'] = { ...price }
+    return obj.ele
+  });
+
+  res.json({ data: data });
 };
 
 const getReport = async (req, res) => {
@@ -263,28 +304,28 @@ const getReport = async (req, res) => {
     let price = {};
     let data = [];
 
-    report.map((ele) => {
-      if(ele?.pcs){
-        Object.keys(ele?.pcs).map((i) => {
-          pcs[i] = ele?.pcs[i];
-          ele[i] = ele?.pcs[i];
-        });
-      }
-      if(ele?.price){
-        Object.keys(ele?.price).map((i) => {
-          price[i] = ele?.price[i];
-        });
-      }
-      ele = {
-        ...ele,
-        ...pcs,
-        ...price,
-      };
+    data = report.map((ele) => {
+      let objPcs = Object.fromEntries(ele.pcs)
+      Object.keys(Object.fromEntries(ele.pcs)).map((item) => {
+          pcs[item] = objPcs[item]
+          ele[item] = objPcs[item];
+      })
+
+      let objPrice = Object.fromEntries(ele.price)
+      Object.keys(Object.fromEntries(ele.price)).map((item) => {
+          price[item] = objPrice[item]
+      })
+
+      let obj = {}
+      obj['ele'] = ele
+      obj['ele']['pcs'] = { ...pcs }
+      obj['ele']['price'] = { ...price }
+      return obj.ele
     });
 
-    res.json({ data: report });
+    res.json({ data: data });
   } catch (e) {
-    console.log("🚀 ~ file: Report.js:284 ~ getReport ~ e", e);
+    res.status(400).json({ message: "Report Not Found" });
   }
 };
 
@@ -364,14 +405,18 @@ const editReport = async (req, res) => {
     const { data, params } = req.body;
     let report = await Report.findOne({ _id: params["id"] });
     let dailyworksalary = 0;
-    let priceObj = report?.price;
+    let priceArr = report?.price;
     let pcsObj = data;
     let olddailySalary = report?.dailywork
 
+    let priceObj = Object.fromEntries(priceArr)
     Object.keys(pcsObj).map((ele, index) => {
       dailyworksalary = dailyworksalary + pcsObj[ele] * priceObj[`${ele}Price`];
     });
 
+    Object.keys(pcsObj).map((ele) => {
+      priceArr.push([ ele ,pcsObj[ele]]) 
+    })
     await Report.updateOne(
       { _id: params["id"] },
       {
@@ -381,8 +426,8 @@ const editReport = async (req, res) => {
         date: new Date(params?.date),
         total: params?.total,
         dailywork: dailyworksalary,
-        price: priceObj,
-        pcs: pcsObj,
+        price: priceArr,
+        pcs: priceArr,
       }
     );
     let month = new Date(params?.date).getMonth();

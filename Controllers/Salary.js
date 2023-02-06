@@ -32,7 +32,8 @@ const getMonthWise = async (req, res) => {
       });
       user.diamondType.map((type) => {
         reportData.map((ele) => {
-          obj[`${type}pcs`] = obj[`${type}pcs`] + Number(ele?.pcs[type] || 0);
+          let pcsObj = Object.fromEntries(ele.pcs)
+          obj[`${type}pcs`] = obj[`${type}pcs`] + Number(pcsObj[type] || 0);
         });
     });
       let pcsObj = {};
