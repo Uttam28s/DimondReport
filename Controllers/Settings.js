@@ -24,6 +24,59 @@ const getWorkerList = async (req, res) => {
     res.json({ data: worker || [] });
 }
 
+const deleteWorker = async (req,res) => {
+  try{
+    const { id, adminId } = req.query
+    console.log("🚀 ~ file: Settings.js:30 ~ deleteWorker ~ id", id,adminId)
+    const setting   = await Settings.findOne({ adminId : adminId});
+    console.log("🚀 ~ file: Settings.js:32 ~ deleteWorker ~ setting", setting)
+    let workerArray = setting?.worker
+    let newWorkerArr = []
+    workerArray.map((ele) => {
+      if(String(ele._id) !== id){
+        newWorkerArr.push(ele)
+      }
+    })
+    await Settings.updateOne({ adminId : adminId},{
+      worker : newWorkerArr
+    })
+     
+    res.json({ data: "Worker Deleted Successfully" });
+  }catch(e){
+    res.status(400).json({ message: "Error" });
+
+  } 
+
+}
+
+const updateWorker = async (req,res) => {
+  try{
+    let { name, process, adminId, id} = req.query;
+    const setting   = await Settings.findOne({ adminId : adminId});
+    let workerArray = setting?.worker    
+    let newWorkerArr = []
+    workerArray.map((ele) => {
+      if(String(ele._id) === id){
+          let obj = {
+            _id : ele['_id'],
+            name : name,
+            process : process
+          }
+          newWorkerArr.push(obj)
+      }else{
+        newWorkerArr.push(ele)
+      }
+    })
+    await Settings.updateOne({ adminId : adminId},{
+      worker : newWorkerArr
+    })
+    res.json({ data: "Worker Deleted Successfully" });
+
+  }catch{
+    res.status(400).json({ message: "Error" });
+  }
+}
+
 const getWorkerListBulk = async (req, res) => {
   let { process, adminId } = req.query;
   let SettingsObj = await Settings.findOne({ adminId : adminId });
@@ -130,5 +183,7 @@ module.exports = {
   updatePrice,
   getWorkerList,
   getWorkerListBulk,
-  getPriceList
+  getPriceList,
+  deleteWorker,
+  updateWorker
 };

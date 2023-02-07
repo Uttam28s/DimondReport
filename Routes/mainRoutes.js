@@ -8,7 +8,9 @@ router.post("/salary/upad", controller.salary.upad);
 router.get("/salary/monthwise", controller.salary.getMonthWise)
 
 router.get("/settings/addworker", controller.settings.addWorker);
+router.put("/settings/updateworker", controller.settings.updateWorker);
 
+router.delete("/settings/deleteWorker", controller.settings.deleteWorker)
 router.get("/settings/getworker", controller.settings.getWorkerList);
 router.get("/settings/getworkerbulk", controller.settings.getWorkerListBulk);
 

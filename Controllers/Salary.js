@@ -22,7 +22,7 @@ const getMonthWise = async (req, res) => {
       });
       const reportData = report.filter((eleReport) => {
         return (
-          eleReport.date.getMonth() === moment().month() &&
+          eleReport.date.getMonth() === Number(month) &&
           String(eleReport.workerid) === String(ele?.workerid)
         );
       });

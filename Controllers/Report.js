@@ -348,7 +348,6 @@ const ReportforSuperAdmin = async (req, res) => {
 
 const DeleteReport = async (req, res) => {
   const { id } = req.query;
-  console.log("🚀 ~ file: Report.js:301 ~ DeleteReport ~ id", id);
   try {
     const report = await Report.findOne({ _id: id });
 
