@@ -126,25 +126,20 @@ const addType = async (req,res) => {
 const deleteType = async (req,res) => {
     try{
         const { adminId, process, type } = req.query
-        const data = await User.findOne({ _id : adminId })
-        let diamondType = data.diamondType
-        diamondType.remove(type.slice(0,-5))
-        await User.updateOne(
-            { _id: adminId },
-            {
-                diamondType : diamondType
-            }
-          );
 
         const settingData = await Settings.findOne({ adminId : adminId })
         let priceDetails = settingData?.priceDetails
-        let arr = []
-        priceDetails[`${process}`].map((ele) => {
-            if(String(Object.keys(ele)[0]) !==  type){
-                arr.push(ele)
-            }
+        let fields = ['taliya','mathala','table','pel','russian' ]
+        fields.map((ele) => {
+            let arr = []
+            priceDetails[`${ele}`].map((item) => {
+                if(String(Object.keys(item)[0]) !==  type){
+                    arr.push(item)
+                }
+            })
+            priceDetails[`${ele}`] = arr
         })
-        priceDetails[`${process}`] = arr
+
         await Settings.updateOne(
             { adminId: adminId },
             {
@@ -161,9 +156,14 @@ const deleteType = async (req,res) => {
 const getdiamondTypeList = async (req,res) => {
     try{
         const { adminId } = req.query
+        let SettingsObj = await Settings.findOne({adminId: adminId});
+        let list =[]
+        SettingsObj?.priceDetails?.taliya.map((ele) => {
+            let value = Object.keys(ele)[0]
+            list.push(value.slice(0,-5))
+        })
         const user = await User.findOne({ _id : adminId })
-        res.json({ data: user?.diamondType});
-
+        res.json({ data: user?.diamondType , activeData :list });
     }catch(e){
         res.json({ error: e });
     }

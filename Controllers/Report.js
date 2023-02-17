@@ -300,11 +300,11 @@ const getReport = async (req, res) => {
       }
     }
 
-    let pcs = {};
-    let price = {};
     let data = [];
 
     data = report.map((ele) => {
+      let pcs = {};
+      let price = {};
       let objPcs = Object.fromEntries(ele.pcs)
       Object.keys(Object.fromEntries(ele.pcs)).map((item) => {
           pcs[item] = objPcs[item]
