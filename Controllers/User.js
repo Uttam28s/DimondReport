@@ -123,6 +123,41 @@ const addType = async (req,res) => {
 }
 
 
+const deleteType = async (req,res) => {
+    try{
+        const { adminId, process, type } = req.query
+        const data = await User.findOne({ _id : adminId })
+        let diamondType = data.diamondType
+        diamondType.remove(type.slice(0,-5))
+        await User.updateOne(
+            { _id: adminId },
+            {
+                diamondType : diamondType
+            }
+          );
+
+        const settingData = await Settings.findOne({ adminId : adminId })
+        let priceDetails = settingData?.priceDetails
+        let arr = []
+        priceDetails[`${process}`].map((ele) => {
+            if(String(Object.keys(ele)[0]) !==  type){
+                arr.push(ele)
+            }
+        })
+        priceDetails[`${process}`] = arr
+        await Settings.updateOne(
+            { adminId: adminId },
+            {
+                priceDetails : priceDetails
+            }
+          );
+        res.json({ success: "Successfully"});
+
+    }catch(e){
+        res.json({ error: e });
+    }
+}
+
 const getdiamondTypeList = async (req,res) => {
     try{
         const { adminId } = req.query
@@ -140,5 +175,6 @@ module.exports = {
   checkLogin,
   updateUserStatus,
   addType,
-  getdiamondTypeList
+  getdiamondTypeList,
+  deleteType
 };

@@ -43,6 +43,7 @@ router.put("/user/updateFlag",controller.user.updateUserStatus);
 
 router.post("/user/addType",controller.user.addType)
 
+router.delete("/user/deletetype",controller.user.deleteType)
 router.get("/user/diamondTypeList",controller.user.getdiamondTypeList)
 
 module.exports = router;
