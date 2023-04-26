@@ -114,8 +114,10 @@ const manageSalary = async (savedData) => {
   let momentDate = moment(savedData.date);
   let newSalary = await Salary.findOne({ workerid: savedData.workerid });
   if (newSalary) {
+    console.log("🚀 ~ file: Report.js:117 ~ manageSalary ~ newSalary:", newSalary)
     let workersalary = newSalary.salary || [];
     if (!newSalary.salary.length) {
+      console.log("🚀 ~ file: Report.js:120 ~ manageSalary ~ !newSalary.salary.length:", !newSalary.salary.length)
       workersalary.push({
         month: momentDate.month(),
         year: momentDate.year(),
@@ -125,6 +127,7 @@ const manageSalary = async (savedData) => {
         status: "pending",
       });
     } else {
+      console.log("🚀 ~ file: Report.js:130 ~ manageSalary ~ else:")
       // if (momentDate.year() > workersalary[0].year) {
       //   let jama =
       //     workersalary[workersalary.length - 1].total +
@@ -146,11 +149,13 @@ const manageSalary = async (savedData) => {
         );
         let jama = 0;
         if (index < 0) {
+          console.log("🚀 ~ file: Report.js:152 ~ manageSalary ~ index:", index)
           if (
             workersalary[workersalary.length - 1]?.status !== "paid" ||
             workersalary[workersalary.length - 1]?.total <
               workersalary[workersalary.length - 1]?.upad
           ) {
+            console.log("🚀 ~ file: Report.js:159 ~ manageSalary ~ jama:")
             jama =
               newSalary?.salary[newSalary?.salary.length - 1].total +
               (newSalary?.salary[newSalary?.salary.length - 1].jama || 0) -
@@ -173,8 +178,19 @@ const manageSalary = async (savedData) => {
             jama: workersalary[index]?.jama,
             status: "pending",
           };
+          // 26/04/2023
+          if(workersalary[index + 1]){
+            workersalary[index + 1] = {
+            month: workersalary[index + 1]?.month,
+            year: workersalary[index + 1]?.year,
+            jama: workersalary[index + 1]?.jama + savedData?.dailywork,
+            upad: workersalary[index + 1]?.upad,
+            total: workersalary[index + 1]?.total,
+            status: "pending"
+          }
+          
         }
-      // }
+      }
     }
     await Salary.updateOne(
       { workerid: savedData.workerid },

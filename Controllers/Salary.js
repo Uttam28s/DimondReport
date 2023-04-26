@@ -133,7 +133,11 @@ const changeStatus = async (req, res) => {
       return d.month === Number(month);
     });
     SalaryArray[index].status = "paid";
-
+    // 26/04/2023
+    if(SalaryArray[index + 1]){
+      SalaryArray[index + 1].jama = SalaryArray[index + 1].jama - SalaryArray[index].total;
+    }
+    // 26/04/2023
     await Salary.updateOne(
       { workerid: workerid },
       {
