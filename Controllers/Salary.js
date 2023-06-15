@@ -60,6 +60,8 @@ const getMonthWise = async (req, res) => {
   });
   let MathalaData = [];
   let TaliyaData = [];
+  let fPData = [];
+  let tichingData = [];
   let PelData = [];
   let TableData = [];
   let RussianData = [];
@@ -79,20 +81,24 @@ const getMonthWise = async (req, res) => {
       totalObj[`total${type}pcs`] = ele[`${type}pcs`] + totalObj[`total${type}pcs`];
     });
   });
-  // console.log("🚀 ~ file: Salary.js:105 ~ data.map ~ data", data)
 
   data.map((ele) => {
     totaltotal = ele.total + totaltotal;
     totaluppad = ele.uppad + totaluppad;
     totaljama = ele.jama + totaljama;
     totalsalary = ele.salary + totalsalary;
-    // console.log("🚀 ~ file: Salary.js:87 ~ data.map ~ ele.salary + totalsalary", ele.salary , totalsalary)
 
     if (ele.process === "mathala") {
       MathalaData.push(ele);
     }
     if (ele.process === "taliya") {
       TaliyaData.push(ele);
+    }
+    if (ele.process === "4P") {
+      fPData.push(ele);
+    }
+    if (ele.process === "tiching") {
+      tichingData.push(ele);
     }
     if (ele.process === "pel") {
       PelData.push(ele);
@@ -107,6 +113,8 @@ const getMonthWise = async (req, res) => {
   finalData = {
     MathalaData: MathalaData,
     TaliyaData: TaliyaData,
+    fPData: fPData,
+    tichingData: tichingData,
     PelData: PelData,
     TableData: TableData,
     RussianData: RussianData,

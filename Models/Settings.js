@@ -47,6 +47,12 @@ const Settings = new mongoose.Schema(
             ref: "User._id",
         },
         priceDetails: {
+            '4p': {
+                type: Array,
+            },
+            tiching: {
+                type: Array,
+            },
             taliya: {
                 type: Array,
             },

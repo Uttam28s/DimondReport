@@ -114,10 +114,8 @@ const manageSalary = async (savedData) => {
   let momentDate = moment(savedData.date);
   let newSalary = await Salary.findOne({ workerid: savedData.workerid });
   if (newSalary) {
-    console.log("🚀 ~ file: Report.js:117 ~ manageSalary ~ newSalary:", newSalary)
     let workersalary = newSalary.salary || [];
     if (!newSalary.salary.length) {
-      console.log("🚀 ~ file: Report.js:120 ~ manageSalary ~ !newSalary.salary.length:", !newSalary.salary.length)
       workersalary.push({
         month: momentDate.month(),
         year: momentDate.year(),
@@ -127,7 +125,6 @@ const manageSalary = async (savedData) => {
         status: "pending",
       });
     } else {
-      console.log("🚀 ~ file: Report.js:130 ~ manageSalary ~ else:")
       // if (momentDate.year() > workersalary[0].year) {
       //   let jama =
       //     workersalary[workersalary.length - 1].total +
@@ -149,13 +146,11 @@ const manageSalary = async (savedData) => {
         );
         let jama = 0;
         if (index < 0) {
-          console.log("🚀 ~ file: Report.js:152 ~ manageSalary ~ index:", index)
           if (
             workersalary[workersalary.length - 1]?.status !== "paid" ||
             workersalary[workersalary.length - 1]?.total <
               workersalary[workersalary.length - 1]?.upad
           ) {
-            console.log("🚀 ~ file: Report.js:159 ~ manageSalary ~ jama:")
             jama =
               newSalary?.salary[newSalary?.salary.length - 1].total +
               (newSalary?.salary[newSalary?.salary.length - 1].jama || 0) -
@@ -463,7 +458,6 @@ const editReport = async (req, res) => {
     };
 
     workerSalary[salaryAvailable]  = obj
-    console.log("Point 2")
 
     await Salary.updateOne(
       { workerid: report.workerid },
@@ -473,7 +467,6 @@ const editReport = async (req, res) => {
         },
       }
     );
-    console.log("Point 3")
 
     res.json({ message: "Updated SuccessFully" });
   } catch(e) {

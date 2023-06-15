@@ -27,9 +27,7 @@ const getWorkerList = async (req, res) => {
 const deleteWorker = async (req,res) => {
   try{
     const { id, adminId } = req.query
-    console.log("🚀 ~ file: Settings.js:30 ~ deleteWorker ~ id", id,adminId)
     const setting   = await Settings.findOne({ adminId : adminId});
-    console.log("🚀 ~ file: Settings.js:32 ~ deleteWorker ~ setting", setting)
     let workerArray = setting?.worker
     let newWorkerArr = []
     workerArray.map((ele) => {
@@ -163,7 +161,6 @@ const updatePrice = async (req, res) => {
     SettingsObj?.priceDetails[process].map((ele,index) => {
       ele[diamondType[index]]  = data[diamondType[index]]
     })
-    console.log("🚀 ~ file: Settings.js:110 ~ updatePrice ~ SettingsObj", SettingsObj?.priceDetails)
     await Settings.updateOne(
       { _id: SettingsObj?._id },
       {

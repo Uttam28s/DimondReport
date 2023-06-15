@@ -8,14 +8,12 @@ const addUser = async (req, res) => {
         let { name, role, password, flag } = req.body;
         let SettingsObj = await Settings.findOne();
         let user = await User.find()
-        console.log("🚀 ~ file: User.js:11 ~ addUser ~ user", user)
         let isExist = false
         user.map((ele) => {
             if(ele.name === name){
                 isExist = true
             }
         })
-        console.log("🚀 ~ file: User.js:19 ~ addUser ~ isExist", isExist)
         if(isExist){
             res.status(400).json({ message: "Already Exist" });
         }else{
@@ -84,7 +82,6 @@ const checkLogin = async (req,res) => {
     const { name,password } = req.body
     const data = await User.findOne({ name : name, password : password })
     if(data){
-        console.log("🚀 ~ file: User.js:73 ~ checkLogin ~ data", data)
         if(data?.flag === false){
             res.status(400).json({ message: "You Are not able to login, Please Contact Superadmin" });
         }
@@ -101,7 +98,6 @@ const addType = async (req,res) => {
         const { adminId, type } = req.body
         if(type){
             const data = await User.findOne({ _id : adminId })
-            console.log("🚀 ~ file: User.js:90 ~ addType ~ data", data)
             if((data.diamondType).includes(type)){
                 res.status(400).json({ message: "Already Exist" });
                 return 
@@ -111,7 +107,7 @@ const addType = async (req,res) => {
         }
         const setting = await Settings.findOne({adminId : adminId})
         let typePrice = type.toLowerCase() +"Price" 
-        const method = ['taliya','mathala','russian','pel','table']
+        const method = ['taliya','mathala','russian','pel','table','4P','tiching']
         method.map((ele) => {
             setting.priceDetails[ele].push({ [typePrice] : 0})
         })  
@@ -129,7 +125,7 @@ const deleteType = async (req,res) => {
 
         const settingData = await Settings.findOne({ adminId : adminId })
         let priceDetails = settingData?.priceDetails
-        let fields = ['taliya','mathala','table','pel','russian' ]
+        let fields = ['taliya','mathala','russian','pel','table','4P','tiching']
         fields.map((ele) => {
             let arr = []
             priceDetails[`${ele}`].map((item) => {
