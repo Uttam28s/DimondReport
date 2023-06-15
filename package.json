@@ -12,6 +12,7 @@
         "watch-node": "nodemon app.js"
     },
     "dependencies": {
+        "@vercel/node": "^2.15.1",
         "body-parser": "^1.20.0",
         "cors": "^2.8.5",
         "dotenv": "^8.6.0",

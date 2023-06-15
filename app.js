@@ -8,8 +8,7 @@ const { mainRoutes } = require("./Routes/index");
 const port = 3003;
 const cors = require("cors");
 
-const dConnection =
-    "mongodb+srv://Uttam28s:76986Utt%40m@diamond.sswlz.mongodb.net/DiamondReport?retryWrites=true&w=majority";
+const dConnection = `${process.env.DATABASE}` || "mongodb+srv://Uttam28s:76986Utt%40m@diamond.sswlz.mongodb.net/DiamondReport?retryWrites=true&w=majority";
 
 // 'mongodb+srv://Uttam28s:76986%40Uttam@diamond.sswlz.mongodb.net/Diamond?retryWrites=true&w=majority'
 // env.DB_CONNECTION +
