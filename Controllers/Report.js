@@ -421,24 +421,25 @@ const editReport = async (req, res) => {
 
     let priceObj = Object.fromEntries(priceArr)
     Object.keys(pcsObj).map((ele, index) => {
-      dailyworksalary = dailyworksalary + pcsObj[ele] * priceObj[`${ele}Price`];
+      dailyworksalary = parseFloat((dailyworksalary + parseFloat(pcsObj[ele]) * parseFloat(priceObj[`${ele}Price`])).toFixed(2));
     });
 
     Object.keys(pcsObj).map((ele) => {
       priceArr.push([ ele ,pcsObj[ele]]) 
     })
+    const updateData = {
+      workerid: params?.workerid,
+      adminId: params?.adminId,
+      process: params?.process,
+      date: new Date(params?.date),
+      total: params?.total,
+      dailywork: dailyworksalary,
+      price: priceArr,
+      pcs: priceArr,
+    }
     await Report.updateOne(
       { _id: params["id"] },
-      {
-        workerid: params?.workerid,
-        adminId: params?.adminId,
-        process: params?.process,
-        date: new Date(params?.date),
-        total: params?.total,
-        dailywork: dailyworksalary,
-        price: priceArr,
-        pcs: priceArr,
-      }
+      {...updateData}
     );
     let month = new Date(params?.date).getMonth();
     let year = new Date(params?.date).getFullYear();

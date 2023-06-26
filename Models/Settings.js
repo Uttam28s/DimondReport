@@ -47,7 +47,7 @@ const Settings = new mongoose.Schema(
             ref: "User._id",
         },
         priceDetails: {
-            '4p': {
+            '4P': {
                 type: Array,
             },
             tiching: {
