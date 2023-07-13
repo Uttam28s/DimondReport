@@ -1,9 +1,21 @@
 const mongoose = require("mongoose");
 
+const UppadDetails = new mongoose.Schema({
+    date: {
+        type: Date,
+    },
+    amount: {
+        type: Number
+    }
+})
+
 
 const MonthSalary = new mongoose.Schema({
     upad: {
         type: Number,
+    },
+    upadDetails: {
+        type: [UppadDetails]
     },
     total: {
         type: Number,

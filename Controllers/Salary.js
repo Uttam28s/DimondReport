@@ -83,6 +83,9 @@ const getMonthWise = async (req, res) => {
   });
 
   data.map((ele) => {
+    // if(ele?.jama === 0 && ele?.upad === 0){
+    //   return    
+    // }
     totaltotal = ele.total + totaltotal;
     totaluppad = ele.uppad + totaluppad;
     totaljama = ele.jama + totaljama;
@@ -134,16 +137,21 @@ const getMonthWise = async (req, res) => {
 
 const changeStatus = async (req, res) => {
   try {
-    const { workerid, month } = req.query;
+    const { workerid, month,type } = req.query;
+    console.log("🚀 ~ file: Salary.js:141 ~ changeStatus ~ type:", type)
     const salary = await Salary.findOne({ workerid: workerid });
     let SalaryArray = [...salary.salary];
     let index = SalaryArray.findIndex((d) => {
       return d.month === Number(month);
     });
+    if(type === "true") {
+      SalaryArray[index - 1].status = "paid"  
+    }
     SalaryArray[index].status = "paid";
     // 26/04/2023
-    if(SalaryArray[index + 1]){
-      SalaryArray[index + 1].jama = SalaryArray[index + 1].jama - SalaryArray[index].total;
+    if (SalaryArray[index + 1]) {
+      SalaryArray[index + 1].jama =
+        SalaryArray[index + 1].jama - SalaryArray[index].total;
     }
     // 26/04/2023
     await Salary.updateOne(
@@ -185,8 +193,34 @@ const getSalary = async (req, res) => {
   }
 };
 
+const getUpadDetails = async (req, res) => {
+  try {
+    const { startDate, endDate, workerId } = req?.query;
+    let salaryData = await Salary.findOne({ workerid: workerId }).select(
+      "salary"
+    );
+    let list = [];
+    salaryData?.salary?.map((ele) => {
+      list = [...list, ...ele?.upadDetails];
+    });
+    
+    if(startDate !== 'undefined' && endDate !== "undefined") {
+      list = list.filter((item) => {
+        const itemDate = moment(item.date);
+        return itemDate.isAfter(moment(startDate)) && itemDate.isBefore(moment(endDate));
+      });
+    }
+    list = list.sort((a, b) => moment(b.date).diff(moment(a.date)));
+    res
+      .status(200)
+      .json({ data: list, message: "Get Uppad SuccessFully" });
+  } catch (e) {
+    res.status(400).json({ message: e?.message });
+  }
+};
+
 const upad = async (req, res) => {
-  const { workerid, upad, month } = req.query;
+  const { workerid, upad, month, date } = req.query;
   const salary = await Salary.findOne({ workerid: workerid });
   let SalaryArray = [...salary.salary];
   let index = SalaryArray.findIndex((d) => {
@@ -198,8 +232,32 @@ const upad = async (req, res) => {
     });
   }
   if (SalaryArray.length !== 0) {
-    SalaryArray[SalaryArray.length - 1].upad =
-      Number(SalaryArray[index]?.upad || 0) + Number(upad);
+    // add upad in current month
+    // update for uppad details save
+    if (index + 1 === SalaryArray.length) {
+      SalaryArray[index].upad =
+        Number(SalaryArray[index]?.upad || 0) + Number(upad);
+      SalaryArray[index].upadDetails.push({
+        amount: upad,
+        date: new Date(date),
+      });
+    } else {
+      if (SalaryArray[index]?.status === "paid") {
+        SalaryArray[index + 1].upad =
+          Number(SalaryArray[index + 1]?.upad || 0) + Number(upad);
+        SalaryArray[index].upadDetails.push({
+          amount: upad,
+          date: new Date(date),
+        });
+      } else {
+        SalaryArray[index].upad =
+          Number(SalaryArray[index]?.upad || 0) + Number(upad);
+        SalaryArray[index].upadDetails.push({
+          amount: upad,
+          date: new Date(date),
+        });
+      }
+    }
   }
   if (salary) {
     await Salary.updateOne(
@@ -214,11 +272,11 @@ const upad = async (req, res) => {
     );
 
     res.json({
-      data: "sucess",
+      data: "success",
     });
   } else {
     res.json({
-      error: "somthing wrong",
+      error: "something wrong",
     });
   }
 };
@@ -228,4 +286,5 @@ module.exports = {
   upad,
   changeStatus,
   getMonthWise,
+  getUpadDetails,
 };

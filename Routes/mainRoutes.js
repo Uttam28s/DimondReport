@@ -2,9 +2,16 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../Controllers");
 
+router.post("/jangad", controller.jangad.addJangadData)
+router.get("/jangad",controller.jangad.getJangadData)
+router.delete("/jangad",controller.jangad.deleteJangadData)
+router.put("/jangad",controller.jangad.updateJangadData)
+
 router.put("/salary/paidStatus", controller.salary.changeStatus)
 router.get("/salary/get", controller.salary.getSalary);
 router.post("/salary/upad", controller.salary.upad);
+router.get("/salary/upad", controller.salary.getUpadDetails);
+
 router.get("/salary/monthwise", controller.salary.getMonthWise)
 
 router.get("/settings/addworker", controller.settings.addWorker);

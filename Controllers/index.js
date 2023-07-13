@@ -1,7 +1,7 @@
 
 
 module.exports = {
-    // report: require("./Report"),
+    jangad: require("./Jangad"),
     salary: require("./Salary"),
     settings: require("./Settings"),
     report:require('./Report'),

@@ -8,8 +8,11 @@ const { mainRoutes } = require("./Routes/index");
 const port = 3003;
 const cors = require("cors");
 
-const dConnection = process.env.DATABASE || "mongodb+srv://Uttam28s:76986Utt%40m@diamond.sswlz.mongodb.net/DiamondReport?retryWrites=true&w=majority";
-
+const dConnection =
+  process.env.DATABASE ||
+  "mongodb+srv://Uttam28s:76986Utt%40m@diamond.sswlz.mongodb.net/DiamondReport?retryWrites=true&w=majority";
+const cron = require("node-cron");
+const { setSalary } = require("./Models/Schedular");
 // 'mongodb+srv://Uttam28s:76986%40Uttam@diamond.sswlz.mongodb.net/Diamond?retryWrites=true&w=majority'
 // env.DB_CONNECTION +
 // "://" +
@@ -20,19 +23,19 @@ const dConnection = process.env.DATABASE || "mongodb+srv://Uttam28s:76986Utt%40m
 // env.DB_DATABASE;
 
 const options = {
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useFindAndModify: false,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useFindAndModify: false,
 };
 mongoose
-    .connect(dConnection, options)
-    .then(() => {
-        console.log("DB Connected!");
-    })
-    .catch((err) => {
-        throw new Error("Database credentials are invalid.");
-    });
+  .connect(dConnection, options)
+  .then(() => {
+    console.log("DB Connected!");
+  })
+  .catch((err) => {
+    throw new Error("Database credentials are invalid.");
+  });
 
 app.use(cors());
 
@@ -40,23 +43,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Getting Request
-app.get('/', (req, res) => {
- 
-    // Sending the response
-    res.send('Hello World!')
-    
-    // Ending the response
-    res.end()
-})
+app.get("/", (req, res) => {
+  // Sending the response
+  res.send("Hello World!");
+
+  // Ending the response
+  res.end();
+});
 
 // app.use("/api/auth", authRoute);
 app.use("/api/diamond", mainRoutes);
 
-
 // app.use(passport.initialize());
 // app.use(passport.session());
 
+// cron.schedule('*/20 * * * * *', () =>
+
+const cronJob = cron.schedule("0 0 1 * *", () => setSalary());
 
 app.listen(port, () => {
-    console.log("server started on", port);
+  console.log("server started on", port);
 });
